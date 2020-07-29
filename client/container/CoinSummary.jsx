@@ -12,8 +12,9 @@ import CardMasternodeSummary from '../component/Card/CardMasternodeSummary';
 import CardNetworkSummary from '../component/Card/CardNetworkSummary';
 import CardPoS from '../component/Card/CardPoS';
 import CardStatus from '../component/Card/CardStatus';
-import WatchList from '../component/WatchList';
 import CardTokenInfo from '../component/Card/CardTokensInfo';
+import WatchList from '../component/WatchList';
+
 class CoinSummary extends Component {
   static propTypes = {
     onSearch: PropTypes.func.isRequired,
@@ -22,6 +23,7 @@ class CoinSummary extends Component {
     // State
     coins: PropTypes.array.isRequired,
     txs: PropTypes.array.isRequired,
+    data: PropTypes.object.isRequired
   };
 
   render() {
@@ -36,8 +38,8 @@ class CoinSummary extends Component {
     const watchlist = height >= 182700
       ? this.props.searches
       : this.props.searches.slice(0, 7);
-      
     let props = this.props;
+    console.log('props', props);
     if (props.data.isToken){
       return (
         <div>
@@ -77,16 +79,6 @@ class CoinSummary extends Component {
                     yAxis={ this.props.coins.map(c => c.mnsOn ? c.mnsOn : 0.0) } />
                 </div>
               </div>
-            </div>
-            <div className="col-md-12 col-lg-3">
-              <CardPoS
-                average={ coin.avgBlockTime?coin.avgBlockTime:0 }
-                height={ height }
-                posHeight={ 182700 } />
-              <WatchList
-                items={ watchlist }
-                onSearch={ this.props.onSearch }
-                onRemove={ this.props.onRemove } />
             </div>
           </div>
         </div>
@@ -145,64 +137,14 @@ class CoinSummary extends Component {
         </div>
       );
     }
-    return (
-      <div>
-        <div className="row">
-          <div className="col-md-12 col-lg-9">
-            <div className="row">
-              <div className="col-md-12 col-lg-6">
-                <CardStatus
-                  avgBlockTime={ coin.avgBlockTime?coin.avgBlockTime:0 }
-                  avgMNTime={ coin.avgMNTime?coin.avgMNTime:0 }
-                  blocks={ height }
-                  peers={ coin.peers }
-                  status={ coin.status }
-                  supply={ coin.supply }  />
-              </div>
-              <div className="col-md-12 col-lg-6">
-                <CardNetworkSummary
-                  difficulty={ coin.diff }
-                  hashps={ coin.netHash }
-                  xAxis={ this.props.coins.map(c => c.createdAt) }
-                  yAxis={ this.props.coins.map(c => c.diff ? c.diff : 0.0) } />
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-12 col-lg-6">
-                <CardMarket
-                  btc={ coin.btc }
-                  usd={ coin.usd }
-                  xAxis={ this.props.coins.map(c => c.createdAt) }
-                  yAxis={ this.props.coins.map(c => c.usd ? c.usd : 0.0) } />
-              </div>
-              <div className="col-md-12 col-lg-6">
-                <CardMasternodeSummary
-                  offline={ coin.mnsOff }
-                  online={ coin.mnsOn }
-                  xAxis={ this.props.coins.map(c => c.createdAt) }
-                  yAxis={ this.props.coins.map(c => c.mnsOn ? c.mnsOn : 0.0) } />
-              </div>
-            </div>
-          </div>
-          <div className="col-md-12 col-lg-3">
-            <CardPoS
-              average={ coin.avgBlockTime?coin.avgBlockTime:0 }
-              height={ height }
-              posHeight={ 182700 } />
-            <WatchList
-              items={ watchlist }
-              onSearch={ this.props.onSearch }
-              onRemove={ this.props.onRemove } />
-          </div>
-        </div>
-      </div>
-    );
+
   };
 }
 
 const mapState = state => ({
   coins: state.coins,
-  txs: state.txs
+  txs: state.txs,
+  data: state.data
 });
 
 export default connect(mapState)(CoinSummary);

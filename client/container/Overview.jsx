@@ -11,10 +11,11 @@ import React from 'react';
 
 import HorizontalRule from '../component/HorizontalRule';
 import Table from '../component/Table';
-
+import CoinSummary from '../container/CoinSummary';
 class Overview extends Component {
   static propTypes = {
-    txs: PropTypes.array.isRequired
+    txs: PropTypes.array.isRequired,
+    setData: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -33,7 +34,7 @@ class Overview extends Component {
   };
 
   componentDidMount(){
-    this.props.setData({isToken: false});
+      this.props.setData({isToken: false});
   }
 
   render() {
@@ -56,7 +57,8 @@ class Overview extends Component {
         vout: numeral(blockValue).format('0,0.0000')
       });
     });
-
+    let props = this.props;
+    console.log('overview props', props);
     return (
       <div>
         <HorizontalRule title="Latest Blocks" />
@@ -69,11 +71,12 @@ class Overview extends Component {
 }
 
 const mapDispatch = dispatch => ({
-
+  setData: data => Actions.setData(dispatch, data)
 });
 
 const mapState = state => ({
-  txs: state.txs
+  txs: state.txs,
+  data: state.data
 });
 
 export default connect(mapState, mapDispatch)(Overview);

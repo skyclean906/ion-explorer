@@ -10,6 +10,7 @@ const fetch = require('../../lib/fetch');
 const Block = require('../../model/block');
 const Coin = require('../../model/coin');
 const Masternode = require('../../model/masternode');
+const Token = require('../../model/token');
 const Peer = require('../../model/peer');
 const Rich = require('../../model/rich');
 const TX = require('../../model/tx');
@@ -196,6 +197,31 @@ const getBlock = async (req, res) => {
 };
 
 /**
+ * Get token by groupid.
+ * @param {Object} req The request object.
+ * @param {Object} res The response object.
+ */
+const getToken = async (req, res) => {
+  try {
+    const query = { groupIdentifier: req.params.hash }
+    const token = await Token.findOne(query);
+    if (!token) {
+      res.status(404).send('Unable to find the token!');
+      return;
+    }
+
+    res.json(token);
+  } catch(err) {
+    console.log(err);
+    res.status(500).send(err.message || err);
+  }
+};
+
+const verifyTokenOwner = async (req, res) => {
+  const result = await rpc.call('verifymessage', [req.query.address, req.query.signature, req.query.message]);
+  res.json({status: result});
+};
+/**
  * Return the coin information.
  * @param {Object} req The request object.
  * @param {Object} res The response object.
@@ -309,6 +335,25 @@ const getIsBlock = async (req, res) => {
  * @param {Object} req The request object.
  * @param {Object} res The response object.
  */
+const getTokens = async (req, res) => {
+  try {
+    const limit = req.query.limit ? parseInt(req.query.limit, 10) : 1000;
+    const skip = req.query.skip ? parseInt(req.query.skip, 10) : 0;
+    const total = await Token.find().sort({ name: 1}).count();
+    const tokens = await Token.find().skip(skip).limit(limit).sort({ name: 1});
+
+    res.json({ tokens, pages: total <= limit ? 1 : Math.ceil(total / limit) });
+  } catch(err) {
+    console.log(err);
+    res.status(500).send(err.message || err);
+  }
+};
+
+/**
+ * Get list of masternodes from the server.
+ * @param {Object} req The request object.
+ * @param {Object} res The response object.
+ */
 const getMasternodes = async (req, res) => {
   try {
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : 1000;
@@ -380,7 +425,6 @@ const getPeer = (req, res) => {
  * @param {Object} req The request object.
  * @param {Object} res The response object.
  */
-
 const getCirculatingSupply = async (req, res) => {
   try {
     let circulatingSupply = 0;
@@ -413,7 +457,6 @@ const getCirculatingSupply = async (req, res) => {
  * @param {Object} res The response object.
  */
 const getTotalSupply = async (req, res) => {
-
   try {
     let totalSupply = 0;
 
@@ -510,6 +553,7 @@ const getTX = async (req, res) => {
     // Get the transactions that are found in the
     // vin section of the tx.
     const vin = [];
+    console.log('tx: ', tx.vin);
     await forEach(tx.vin, async (vi) => {
       if (tx.vout[0].address === 'NON_STANDARD' && !vi.coinbase) {
         const t = await TX.findOne({txId: vi.txId})
@@ -521,7 +565,7 @@ const getTX = async (req, res) => {
         if (!!t) {
           t.vout.forEach((vo) => {
             if (vo.n === vi.vout) {
-              vin.push({ address: vo.address, value: vo.value });
+              vin.push({ address: vo.address, value: vo.value, tokenTicker: vo.tokenTicker, tokenValue: vo.tokenValue, tokenId: vo.tokenId});
             }
           });
         }
@@ -529,6 +573,7 @@ const getTX = async (req, res) => {
         vin.push(vi);
       }
     });
+    console.log('res: ', { ...tx.toObject(), vin });
 
     res.json({ ...tx.toObject(), vin });
   } catch(err) {
@@ -611,41 +656,6 @@ const getTXsWeek = () => {
   };
 };
 
-const getTokens = async (req, res) => {
-  try {
-    const limit = req.query.limit ? parseInt(req.query.limit, 10) : 1000;
-    const skip = req.query.skip ? parseInt(req.query.skip, 10) : 0;
-    const total = await Token.find().sort({ name: 1}).count();
-    const tokens = await Token.find().skip(skip).limit(limit).sort({ name: 1});
-
-    res.json({ tokens, pages: total <= limit ? 1 : Math.ceil(total / limit) });
-  } catch(err) {
-    console.log(err);
-    res.status(500).send(err.message || err);
-  }
-};
-
-const getToken = async (req, res) => {
-  try {
-    const query = { groupIdentifier: req.params.hash }
-    const token = await Token.findOne(query);
-    if (!token) {
-      res.status(404).send('Unable to find the token!');
-      return;
-    }
-
-    res.json(token);
-  } catch(err) {
-    console.log(err);
-    res.status(500).send(err.message || err);
-  }
-};
-
-const verifyTokenOwner = async (req, res) => {
-  const result = await rpc.call('verifymessage', [req.query.address, req.query.signature, req.query.message]);
-  res.json({status: result});
-};
-
 module.exports =  {
   getAddress,
   getAvgBlockTime,
@@ -656,6 +666,8 @@ module.exports =  {
   getCoinsWeek,
   getIsBlock,
   getMasternodes,
+  getTokens,
+  getToken,
   getMasternodeByAddress,
   getMasternodeCount,
   getPeer,
@@ -667,7 +679,5 @@ module.exports =  {
   getTX,
   getTXs,
   getTXsWeek,
-  getTokens,
-  getToken,
   verifyTokenOwner
 };

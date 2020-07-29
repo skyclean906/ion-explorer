@@ -106,7 +106,7 @@ function getDocumentHash(text){
 }
 
 async function getVerified(url, creator, signature){
-  const res = await fetch("http://178.63.71.35:8000/verifymessage", {
+  const res = await fetch("http://localhost:8000/verifymessage", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

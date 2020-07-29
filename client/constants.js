@@ -5,7 +5,7 @@ export const ERROR = 'ERROR';
 export const TXS = 'TXS';
 export const WATCH_ADD = 'WATCH_ADD';
 export const WATCH_REMOVE = 'WATCH_REMOVE';
-
+export const DATA = 'DATA';
 export const API_BASE = location.origin;
 export const PAGINATION_PAGE_SIZE = [
   { label: '10', value: 10 },
@@ -15,6 +15,7 @@ export const PAGINATION_PAGE_SIZE = [
 
 export default {
   COIN,
+  DATA,
   COINS,
   ERROR,
   PAGINATION_PAGE_SIZE,

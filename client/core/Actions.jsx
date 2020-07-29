@@ -3,6 +3,7 @@ import fetchWorker from '../../lib/fetch.worker';
 import promise from 'bluebird';
 import {
   COIN,
+  DATA,
   COINS,
   ERROR,
   TXS,
@@ -38,6 +39,41 @@ const getFromWorker = (type, resolve, reject, query = null) => {
   promises.set(type, { resolve, reject });
   worker.postMessage({ query, type });
   return true;
+};
+
+export const verifyTokenOwner = (query) => {
+  return new promise((resolve, reject) => {
+    return getFromWorker('verifyTokenOwner', resolve, reject, query);
+  });
+};
+
+export const getToken = (query) => {
+  return new promise((resolve, reject) => {
+    return getFromWorker('token', resolve, reject, query);
+  });
+};
+
+export const getTokens = (dispatch, query) => {
+  return new promise((resolve, reject) => {
+    return getFromWorker(
+      'tokens',
+      (payload) => {
+        console.log('get tokens', payload);
+        if (dispatch) {
+          dispatch({ payload, type: DATA });
+        }
+        resolve(payload);
+      },
+      (payload) => {
+        console.log('get tokens error', payload);
+        if (dispatch) {
+          dispatch({ payload, type: ERROR });
+        }
+        reject(payload);
+      },
+      query
+    );
+  });
 };
 
 export const getAddress = (query) => {
@@ -161,6 +197,10 @@ export const getTXsWeek = () => {
   });
 };
 
+export const setData = (dispatch, data) => {
+  dispatch({ payload: data, type: DATA });
+};
+
 export const setTXs = (dispatch, txs) => {
   dispatch({ payload: txs, type: TXS });
 };
@@ -173,48 +213,16 @@ export const removeWatch = (dispatch, term) => {
   dispatch({ payload: term, type: WATCH_REMOVE });
 };
 
-export const verifyTokenOwner = (query) => {
-  return new promise((resolve, reject) => {
-    return getFromWorker('verifyTokenOwner', resolve, reject, query);
-  });
-};
-
-export const getToken = (query) => {
-  return new promise((resolve, reject) => {
-    return getFromWorker('token', resolve, reject, query);
-  });
-};
-
-export const getTokens = (dispatch, query) => {
-  return new promise((resolve, reject) => {
-    return getFromWorker(
-      'tokens',
-      (payload) => {
-        console.log('get tokens', payload);
-        if (dispatch) {
-          dispatch({ payload, type: DATA });
-        }
-        resolve(payload);
-      },
-      (payload) => {
-        console.log('get tokens error', payload);
-        if (dispatch) {
-          dispatch({ payload, type: ERROR });
-        }
-        reject(payload);
-      },
-      query
-    );
-  });
-};
-
 export default {
   getAddress,
   getBlock,
+  setData,
   getCoinHistory,
   getCoinsWeek,
   getIsBlock,
   getMNs,
+  getTokens,
+  getToken,
   getPeers,
   getTX,
   getTXLatest,
@@ -223,7 +231,5 @@ export default {
   setTXs,
   setWatch,
   removeWatch,
-  getTokens,
-  getToken,
   verifyTokenOwner
 };

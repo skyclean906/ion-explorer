@@ -21,7 +21,6 @@ const data = (state = dataInit, action) => {
   }
   return state;
 };
-
 // The initial state of the coin object.
 const coinInit = {
   blocks: 0, btc: 0, cap: 0, createdAt: 0,
