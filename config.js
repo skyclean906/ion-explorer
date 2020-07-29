@@ -4,7 +4,7 @@
  */
 const config = {
   'api': {
-    'host': 'http://localhost',
+    'host': 'https://ionchain.com',
     'port': '8087',
     'prefix': '/api',
     'timeout': '90s'
@@ -21,7 +21,7 @@ const config = {
     'pass': 'ion'
   },
   'freegeoip': {
-    'api': 'http://freegeoip.net/json/'
+    'api': 'https://extreme-ip-lookup.com/json/'
   },
   'rpc': {
     'host': '127.0.0.1',

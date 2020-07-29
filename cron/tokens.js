@@ -1,15 +1,15 @@
 
-require('babel-polyfill');
-require('../lib/cron');
-const config = require('../config');
-const { exit, rpc } = require('../lib/cron');
-//const fetch = require('../lib/fetch');
-const isofetch = require('isomorphic-fetch');
-const { forEach } = require('p-iteration');
-const locker = require('../lib/locker');
-const moment = require('moment');
+require('babel-polyfill'); 
+require('../lib/cron'); 
+const config = require('../config'); 
+const { exit, rpc } = require('../lib/cron'); 
+//const fetch = require('../lib/fetch'); 
+const isofetch = require('isomorphic-fetch'); 
+const { forEach } = require('p-iteration'); 
+const locker = require('../lib/locker'); 
+const moment = require('moment'); 
 const SHA256 = require('sha256');
-// Models.
+// Models. 
 const Token = require('../model/token');
 
 /**
@@ -106,16 +106,20 @@ function getDocumentHash(text){
 }
 
 async function getVerified(url, creator, signature){
+  const string_body = JSON.stringify({
+    "url": url,
+    "creator": creator,
+    "signature": signature
+  });
+ console.log('-------------------String Body----------------------');
+ console.log(string_body);
+ console.log('-----------------------------------------------------');
   const res = await fetch("http://localhost:8000/verifymessage", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      "url": url,
-      "creator": creator,
-      "signature": signature
-    })
+    body: string_body
   });
   const result = await res.json();
   return result.res;
