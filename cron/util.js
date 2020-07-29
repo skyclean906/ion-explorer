@@ -167,7 +167,7 @@ async function vout(rpctx, blockHeight) {
  */
 async function addPoS(block, rpctx) {
   // We will ignore the empty PoS txs.
-  if (typeof rpctx.vin[0].coinbase != "undefined" && rpctx.vin[0].coinbase && rpctx.vout[0].value === 0)
+  if (typeof rpctx.vin[0] !== "undefined" && typeof rpctx.vin[0].coinbase != "undefined" && rpctx.vin[0].coinbase && rpctx.vout[0].value === 0)
     return;
 
   const query = {_id: rpctx.txid};
