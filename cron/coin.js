@@ -20,8 +20,9 @@ async function syncCoin() {
   //const url = `${ config.coinMarketCap.api }${ config.coinMarketCap.ticker }`;
   const url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?id=1281&CMC_PRO_API_KEY=5ca8732a-1676-4d5b-807b-eae694fee117";
   const info = await rpc.call('getinfo');
+  const txOutinfo = await rpc.call('gettxoutsetinfo');
   console.log(info);
-  const masternodes = await rpc.call('getmasternodecount');
+  const masternodes = await rpc.call('masternode', ['count']);
   const nethashps = await rpc.call('getnetworkhashps');
   const utxo = await UTXO.aggregate([
     {$match: {address: {$ne: 'ZERO_COIN_MINT'}}},
@@ -45,12 +46,12 @@ async function syncCoin() {
     blocks: info.blocks,
     btc: '0.0000000357',
     diff: info.difficulty,
-    mnsOff: masternodes.total - masternodes.stable,
-    mnsOn: masternodes.stable,
+    mnsOff: masternodes.total - masternodes.enabled,
+    mnsOn: masternodes.enabled,
     netHash: nethashps,
     peers: info.connections,
     status: 'Online',
-    supply: info.xIONsupply.total,  //count(utxo) == utxo[0].total + 
+    supply: txOutinfo.total_amount,  //count(utxo) == utxo[0].total + 
     usd: market.quote.USD.price
   });
 
